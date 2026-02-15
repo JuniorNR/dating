@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma.service';
-import { AnnouncementCreateDto } from './announcement.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateAnnouncementDto } from './dto/create-announcement.dto';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -11,10 +11,12 @@ export class AnnouncementService {
   ) {}
 
   findAll() {
-    return this.prisma.announcement.findMany();
+    return this.prisma.announcement.findMany({
+      include: { author: true },
+    });
   }
 
-  create(dto: AnnouncementCreateDto) {
+  create(dto: CreateAnnouncementDto) {
     return this.prisma.announcement.create({
       data: dto,
     });

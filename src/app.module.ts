@@ -9,17 +9,21 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AnnouncementModule } from './announcement/announcement.module';
 import { AnnouncementMiddleware } from './announcement/announcement.middleware';
-import { WebsocketGateway } from './websocket.gateway';
+import { WebsocketModule } from './websocket/websocket.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: '.env',
       isGlobal: true,
     }),
     AnnouncementModule,
+    UserModule,
+    WebsocketModule,
   ],
   controllers: [AppController],
-  providers: [AppService, WebsocketGateway],
+  providers: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

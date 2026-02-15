@@ -8,21 +8,30 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   const config = new DocumentBuilder()
     .setTitle('Dating API')
     .setDescription('The Dating API description')
     .setVersion('0.1')
-    .addTag('dating')
+    .addTag('User', 'Operations with users')
+    .addTag('Announcement', 'Operations with Announcements')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
-  console.log('Swagger initialization http://localhost:3001/docs');
+  SwaggerModule.setup(
+    process.env['SWAGGER_NAMESPACE'] || 'docs',
+    app,
+    documentFactory,
+  );
+  console.log(
+    `Swagger is initialized on: ${process.env['APP_PROTOCOL']}://${process.env['APP_DOMAIN'] || 'localhost'}:${process.env['APP_PORT'] || 3001}/${process.env['SWAGGER_NAMESPACE']}`,
+  );
 
-  await app.listen(process.env['PORT'] || 3001);
+  await app.listen(process.env['APP_PORT'] || 3001);
 
-  console.log(`App is listening on port=${process.env['PORT'] || 3001}`);
+  console.log(
+    `App is listening on: ${process.env['APP_DOMAIN'] || 'localhost'}:${process.env['APP_PORT'] || 3001}`,
+  );
 }
 void bootstrap();

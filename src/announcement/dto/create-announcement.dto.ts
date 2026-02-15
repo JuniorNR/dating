@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNumber, IsString } from 'class-validator';
 
-export class AnnouncementCreateDto {
+export class CreateAnnouncementDto {
   @ApiProperty({
     example: 'I want to find a woman',
   })
@@ -13,6 +14,11 @@ export class AnnouncementCreateDto {
   })
   @IsString()
   content: string;
-}
 
-export type AnnouncementUpdateDto = Partial<AnnouncementCreateDto>;
+  @ApiProperty({
+    example: 1,
+  })
+  @IsNumber()
+  @Type(() => Number)
+  authorId: number;
+}

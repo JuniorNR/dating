@@ -6,7 +6,7 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-} from '@NESTJS/websockets';
+} from '@nestjs/websockets';
 import { Namespace, Server } from 'socket.io';
 
 @WebSocketGateway(Number(process.env['WEBSOCKET_PORT']) || 3002, {
@@ -19,7 +19,9 @@ export class WebsocketGateway
   namespace: Namespace;
 
   afterInit(/*server: Server*/) {
-    console.log('WS initialization http://localhost:3002/ws');
+    console.log(
+      `WS initialized on: ${process.env['APP_PROTOCOL']}://${process.env['APP_DOMAIN']}:${process.env['WEBSOCKET_PORT']}/${process.env['WEBSOCKET_NAMESPACE']}`,
+    );
   }
 
   handleConnection(/*client: Socket*/) {
