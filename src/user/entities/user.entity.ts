@@ -1,4 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Announcement } from '@prisma/client';
+import { AnnouncementEntity } from 'src/announcement/entities/announcement.entity';
 
 export class UserEntity {
   @ApiProperty({ example: 1 })
@@ -15,6 +17,9 @@ export class UserEntity {
 
   @ApiPropertyOptional({ example: 'Spam' })
   banReason?: string;
+
+  @ApiProperty({ type: () => [AnnouncementEntity] })
+  announcements: Announcement[];
 
   @ApiProperty({ example: '2026-02-15T12:00:00.000Z' })
   createdAt: Date;
