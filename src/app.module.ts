@@ -11,6 +11,7 @@ import { AnnouncementModule } from './announcement/announcement.module';
 import { AnnouncementMiddleware } from './announcement/announcement.middleware';
 import { WebsocketModule } from './websocket/websocket.module';
 import { UserModule } from './user/user.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { UserModule } from './user/user.module';
     AnnouncementModule,
     UserModule,
     WebsocketModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

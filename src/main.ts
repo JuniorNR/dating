@@ -15,7 +15,8 @@ async function bootstrap() {
     .setDescription('The Dating API description')
     .setVersion('0.1')
     .addTag('User', 'Operations with users')
-    .addTag('Announcement', 'Operations with Announcements')
+    .addTag('Announcement', 'Operations with announcements')
+    .addTag('Role', 'Operations with roles')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
