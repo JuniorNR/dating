@@ -6,13 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
+import { RolesGuard } from 'src/common/guards/rolesGuard';
+import { Roles } from 'src/common/decorators/roles-auth.decorator';
 
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -41,6 +45,8 @@ export class UserController {
     description: 'List of users',
     type: [UserEntity],
   })
+  @Roles('user')
+  @UseGuards(RolesGuard)
   findAll() {
     return this.userService.findAll();
   }

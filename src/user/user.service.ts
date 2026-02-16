@@ -45,7 +45,24 @@ export class UserService {
   }
 
   findOne(id: number) {
-    return this.prisma.user.findFirst({ where: { id } });
+    return this.prisma.user.findFirst({
+      where: { id },
+      include: { roles: true, announcements: true },
+    });
+  }
+
+  findOneByUsername(username: string) {
+    return this.prisma.user.findFirst({
+      where: { username },
+      include: { roles: true },
+    });
+  }
+
+  findOneByEmail(email: string) {
+    return this.prisma.user.findFirst({
+      where: { email },
+      include: { roles: true },
+    });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
