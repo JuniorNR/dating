@@ -2,17 +2,18 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { RoleService } from 'src/role/role.service';
+import { AddUserRoleDto } from './dto/add-user-role.dto';
+import { AddUserBanDto } from './dto/add-user-ban.dto';
+import { RemoveUserBanDto } from './dto/remove-user-ban.dto';
 
 @Injectable()
 export class UserService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly roleService: RoleService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    const role = await this.roleService.findOneByType('user');
+    const role = await this.prisma.role.findFirst({
+      where: { type: 'user' },
+    });
 
     if (role === null) {
       throw new HttpException('Role user is not defined', HttpStatus.NOT_FOUND);
@@ -75,5 +76,65 @@ export class UserService {
 
   remove(id: number) {
     return this.prisma.user.delete({ where: { id } });
+  }
+
+  async addRole(addUserRoleDto: AddUserRoleDto) {
+    const foundRole = await this.prisma.role.findFirst({
+      where: {
+        id: addUserRoleDto.roleId,
+      },
+    });
+
+    if (!foundRole) {
+      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
+    }
+
+    return this.prisma.user.update({
+      where: { id: addUserRoleDto.userId },
+      data: {
+        roles: {
+          connect: { id: addUserRoleDto.roleId },
+        },
+      },
+      include: {
+        roles: true,
+        announcements: true,
+      },
+    });
+  }
+
+  async removeRole(addUserRoleDto: AddUserRoleDto) {
+    return this.prisma.user.update({
+      where: { id: addUserRoleDto.userId },
+      data: {
+        roles: {
+          disconnect: { id: addUserRoleDto.roleId },
+        },
+      },
+      include: {
+        roles: true,
+        announcements: true,
+      },
+    });
+  }
+
+  async addBan(addUserBanDto: AddUserBanDto) {
+    return await this.prisma.user.update({
+      where: { id: addUserBanDto.userId },
+      data: {
+        banned: true,
+        banReason: addUserBanDto.reason,
+      },
+    });
+  }
+
+  async removeBan(removeUserBanDto: RemoveUserBanDto) {
+    return await this.prisma.user.update({
+      where: { id: removeUserBanDto.userId },
+      data: {
+        banned: false,
+        banReason: null,
+      },
+    });
   }
 }

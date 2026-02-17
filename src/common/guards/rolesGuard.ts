@@ -32,6 +32,9 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    throw new ForbiddenException({ statusCode: 403, message: 'Access denied' });
+    throw new ForbiddenException({
+      statusCode: 403,
+      message: `Access denied. Required roles: ${requiredRoles.join(', ')}. You have: ${user.roles.map((role) => role.type).join(', ')}`,
+    });
   }
 }

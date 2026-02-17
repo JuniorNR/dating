@@ -15,6 +15,10 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserEntity } from './entities/user.entity';
 import { RolesGuard } from 'src/common/guards/rolesGuard';
 import { Roles } from 'src/common/decorators/roles-auth.decorator';
+import { AddUserRoleDto } from './dto/add-user-role.dto';
+import { RemoveUserRoleDto } from './dto/remove-user-role.dto';
+import { AddUserBanDto } from './dto/add-user-ban.dto';
+import { RemoveUserBanDto } from './dto/remove-user-ban.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -91,5 +95,69 @@ export class UserController {
   })
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
+  }
+
+  @Post('/add-role')
+  @Roles('admin')
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Add role to user',
+    description: 'Add role to user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Role added to user',
+    type: UserEntity,
+  })
+  addRole(@Body() addUserRoleDto: AddUserRoleDto) {
+    return this.userService.addRole(addUserRoleDto);
+  }
+
+  @Post('/remove-role')
+  @Roles('user')
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Add role to user',
+    description: 'Add role to user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Role added to user',
+    type: UserEntity,
+  })
+  removeRole(@Body() removeUserRoleDto: RemoveUserRoleDto) {
+    return this.userService.removeRole(removeUserRoleDto);
+  }
+
+  @Post('/add-ban')
+  @Roles('user')
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Add ban to user',
+    description: 'Add ban to user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Ban added to user',
+    type: UserEntity,
+  })
+  addBan(@Body() addUserBanDto: AddUserBanDto) {
+    return this.userService.addBan(addUserBanDto);
+  }
+
+  @Post('/remove-ban')
+  @Roles('user')
+  @UseGuards(RolesGuard)
+  @ApiOperation({
+    summary: 'Remove ban to user',
+    description: 'Remove ban to user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Ban removed to user',
+    type: UserEntity,
+  })
+  removeBan(@Body() removeUserBanDto: RemoveUserBanDto) {
+    return this.userService.removeBan(removeUserBanDto);
   }
 }
