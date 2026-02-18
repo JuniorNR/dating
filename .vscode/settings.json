@@ -1,6 +1,14 @@
 {
   "cSpell.words": [
     "autoincrement",
-    "unban"
+    "CHOKIDAR",
+    "healthcheck",
+    "isready",
+    "pgdata",
+    "unban",
+    "USEPOLLING",
+    "WATCHDIRECTORY",
+    "WATCHFILE",
+    "WATCHPACK"
   ]
 }

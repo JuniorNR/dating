@@ -1,0 +1,44 @@
+name: dating-backend
+
+services:
+  application:
+    container_name: application
+    working_dir: /app
+    build:
+      context: .
+    env_file:
+      - .development.env
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+     - 3001:3001
+     - 9229:9229
+    command: pnpm start:dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: always
+
+  postgres:
+    container_name: postgres
+    image: postgres:18
+    env_file:
+      - .development.env
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 192837465
+      POSTGRES_DB: dating
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+volumes:
+  pgdata:
