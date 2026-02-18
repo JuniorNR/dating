@@ -4,8 +4,10 @@ import {
   NestModule,
   RequestMethod,
 } from '@nestjs/common';
+import * as path from 'path';
+import { CookieResolver, I18nModule } from 'nestjs-i18n';
 import { APP_GUARD } from '@nestjs/core';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AnnouncementModule } from './announcement/announcement.module';
@@ -21,6 +23,17 @@ import { JwtAuthGuard } from './common/guards/jwtAuth.guard';
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
+    }),
+    I18nModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        fallbackLanguage: configService.getOrThrow('FALLBACK_LANGUAGE'),
+        loaderOptions: {
+          path: path.join(__dirname, '../i18n'),
+          watch: true,
+        },
+      }),
+      resolvers: [new CookieResolver()],
+      inject: [ConfigService],
     }),
     WebsocketModule,
     AuthModule,
