@@ -5,6 +5,7 @@
     "healthcheck",
     "isready",
     "pgdata",
+    "psql",
     "unban",
     "USEPOLLING",
     "WATCHDIRECTORY",

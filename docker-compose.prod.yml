@@ -10,7 +10,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:192837465@postgres:5432/dating
     ports:
-      - "5001:5001"
+      - 3001:3001
+      - 3002:3002
     depends_on:
       postgres:
         condition: service_healthy

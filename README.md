@@ -60,10 +60,8 @@ $ docker compose -f docker-compose.prod.yml up
 
 ## Get dump file from database container
 ```bash
-# find container database name
-# prod
+# find container database name (prod/dev)
 $ docker compose -f docker-compose.prod.yml ps
-#dev
 $ docker compose -f docker-compose.dev.yml ps
 
 # create dump into container

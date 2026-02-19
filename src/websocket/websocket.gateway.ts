@@ -10,7 +10,7 @@ import {
 import { Namespace, Server } from 'socket.io';
 
 @WebSocketGateway(Number(process.env['WEBSOCKET_PORT']) || 3002, {
-  namespace: process.env['WEBSOCKET_NS'] || 'ws',
+  namespace: process.env['WEBSOCKET_NAMESPACE'] || 'ws',
 })
 export class WebsocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
