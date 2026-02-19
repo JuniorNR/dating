@@ -44,17 +44,24 @@ $ pnpm run start:dev
 $ pnpm run start:prod
 ```
 
-## Run tests
+## Run docker development
 
 ```bash
-# unit tests
-$ pnpm run test
+# build image
+$ docker compose -f docker-compose.dev.yml build
 
-# e2e tests
-$ pnpm run test:e2e
+# up containers
+$ docker compose -f docker-compose.dev.yml up
+```
 
-# test coverage
-$ pnpm run test:cov
+## Run docker production
+
+```bash
+# build image
+$ docker compose -f docker-compose.prod.yml build
+
+# up containers
+$ docker compose -f docker-compose.prod.yml up
 ```
 
 ## Deployment

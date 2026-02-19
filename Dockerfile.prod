@@ -1,0 +1,19 @@
+FROM node:lts-alpine3.22
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY pnpm-lock.yaml ./
+
+RUN pnpm install
+
+COPY . .
+
+RUN pnpm prisma generate
+RUN pnpm build
+
+EXPOSE 5001
+
+CMD ["pnpm", "start:prod"]

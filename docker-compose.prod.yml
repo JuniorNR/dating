@@ -1,30 +1,23 @@
-name: dating-backend
+name: dating-backend-prod
 
 services:
   application:
-    container_name: application
-    working_dir: /app
     build:
       context: .
+      dockerfile: Dockerfile.prod
     env_file:
-      - .development.env
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - .production.env
+    environment:
+      DATABASE_URL: postgresql://postgres:192837465@postgres:5432/dating
     ports:
-     - 3001:3001
-     - 9229:9229
-    command: pnpm start:dev
+      - "5001:5001"
     depends_on:
       postgres:
         condition: service_healthy
-    restart: always
+    restart: unless-stopped
 
   postgres:
-    container_name: postgres
     image: postgres:18
-    env_file:
-      - .development.env
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 192837465
@@ -38,7 +31,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    restart: always
+    restart: unless-stopped
 
 volumes:
   pgdata:
