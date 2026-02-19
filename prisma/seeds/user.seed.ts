@@ -6,7 +6,8 @@ export const seedUsers = (prisma: PrismaClient) => {
       {
         username: 'Admin',
         email: 'admin@mail.ru',
-        password: 'Admin!192837465',
+        password:
+          '$2b$10$9fLMJS6QNp5wESVK8z.Za.R1JNhLK4H7oQQXjZR2J8Qkepql66bRa',
       },
     ],
     skipDuplicates: true,
