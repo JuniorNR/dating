@@ -3,8 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { AuthenticatedSocketIoAdapter } from './common/adapters/authenticated-socket-io.adapter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.useWebSocketAdapter(new AuthenticatedSocketIoAdapter(app));
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ transform: true }));

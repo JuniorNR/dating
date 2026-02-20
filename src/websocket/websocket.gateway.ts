@@ -1,13 +1,12 @@
 import {
-  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Namespace, Server } from 'socket.io';
+import { AppSocket } from '../common/types/ws.types';
 
 @WebSocketGateway(Number(process.env['WEBSOCKET_PORT']) || 3002, {
   namespace: process.env['WEBSOCKET_NAMESPACE'] || 'ws',
@@ -15,27 +14,24 @@ import { Namespace, Server } from 'socket.io';
 export class WebsocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  @WebSocketServer() Server: Server;
+  @WebSocketServer() server: Server;
   namespace: Namespace;
 
-  afterInit(/*server: Server*/) {
+  afterInit() {
     console.log(
       `WS initialized on: ${process.env['APP_PROTOCOL']}://${process.env['APP_DOMAIN']}:${process.env['WEBSOCKET_PORT']}/${process.env['WEBSOCKET_NAMESPACE']}`,
     );
   }
 
-  handleConnection(/*client: Socket*/) {
-    console.log('WS connection');
+  handleConnection(client: AppSocket) {
+    const { username, sub } = client.data.user;
+    console.log(`WS connection: ${client.id} (user: ${username}, id: ${sub})`);
   }
 
-  handleDisconnect(/*client: Socket*/) {
-    console.log('WS disconnection');
-  }
-
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: string): void {
-    console.log('Message ', message);
-
-    this.Server.emit('message', `Echo: ${message}`);
+  handleDisconnect(client: AppSocket) {
+    const { username, sub } = client.data.user;
+    console.log(
+      `WS disconnection: ${client.id} (user: ${username}, id: ${sub})`,
+    );
   }
 }
