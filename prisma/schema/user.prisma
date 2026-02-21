@@ -7,6 +7,8 @@ model User {
   banReason String?
   announcements Announcement[]
   roles     Role[]
+  chats     Chat[]
+  messages  ChatMessage[]
   createdAt DateTime @default(now())
   updatedAt DateTime? @updatedAt
 }

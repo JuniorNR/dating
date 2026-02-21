@@ -1,0 +1,10 @@
+model ChatMessage {
+  id Int @id @default(autoincrement())
+  text String
+  author User @relation(fields: [authorId], references: [id])
+  authorId Int
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+}
