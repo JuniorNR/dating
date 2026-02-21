@@ -5,6 +5,7 @@
     "healthcheck",
     "isready",
     "pgdata",
+    "pkill",
     "psql",
     "unban",
     "USEPOLLING",

@@ -15,6 +15,7 @@ services:
     ports:
      - 3001:3001
      - 3002:3002
+     - 5555:5555
      - 9229:9229
     command: pnpm start:dev
     depends_on:

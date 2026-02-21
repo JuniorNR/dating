@@ -6,14 +6,21 @@ import {
   OnGatewayInit,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
 import { Namespace, Server } from 'socket.io';
-import { AppSocket } from 'src/common/types/ws.types';
+import type { AppSocket } from 'src/common/types/ws.types';
+import { SendMessageDto } from './dto/send-message.dto';
+import { JoinChatDto } from './dto/join-chat.dto';
+import { LeaveChatDto } from './dto/leave-chat.dto';
+import { GetMessagesDto } from './dto/get-messages.dto';
+import { TypingMessageDto } from './dto/typing-message.dto';
 
-@WebSocketGateway({ namespace: 'chat' })
+@WebSocketGateway(Number(process.env['WEBSOCKET_PORT']) || 3002, {
+  namespace: 'chat',
+})
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -26,38 +33,123 @@ export class ChatGateway
     console.log(`[WS][chat][initialization]`);
   }
 
-  handleConnection(client: AppSocket) {
-    console.log(`[WS][chat][connection]: ${client.id}`);
+  async handleConnection(client: AppSocket) {
+    const { sub, username } = client.data.user;
+    await client.join(`user:${sub}`);
+    console.log(
+      `[WS][chat][connected]: user[id=${sub} username=${username}], socket=${client.id}`,
+    );
   }
 
   handleDisconnect(client: AppSocket) {
-    console.log(`[WS][chat][disconnect]: ${client.id}`);
+    const { sub, username } = client.data.user;
+    client.disconnect();
+    console.log(
+      `[WS][chat][disconnected]: user[id=${sub} username=${username}], socket=${client.id}`,
+    );
   }
 
-  // =========================================================
+  // ========================= Chat List =========================
+
+  @SubscribeMessage('getChats')
+  async handleGetChat(@ConnectedSocket() client: AppSocket) {
+    const { sub } = client.data.user;
+    return this.chatService.getUserChats(sub);
+  }
 
   @SubscribeMessage('createChat')
-  create(@MessageBody() createChatDto: CreateChatDto) {
-    return this.chatService.create(createChatDto);
+  async create(
+    @ConnectedSocket() client: AppSocket,
+    @MessageBody() createChatDto: CreateChatDto,
+  ) {
+    const { sub } = client.data.user;
+    const newChat = await this.chatService.create(sub, createChatDto);
+    for (const member of newChat.members) {
+      this.server.to(`user:${member.id}`).emit('chatCreated', newChat);
+    }
   }
 
-  @SubscribeMessage('findAllChat')
-  findAll() {
-    return this.chatService.findAll();
+  // ========================= Chat Room =========================
+
+  @SubscribeMessage('joinChat')
+  async handleJoinChat(
+    @ConnectedSocket() client: AppSocket,
+    @MessageBody() joinChatDto: JoinChatDto,
+  ) {
+    const { sub } = client.data.user;
+
+    if (!(await this.chatService.isChatMember(joinChatDto.chatId, sub))) return;
+
+    await client.join(`chat:${joinChatDto.chatId}`);
+
+    return { event: 'joinedChat', data: joinChatDto.chatId };
   }
 
-  @SubscribeMessage('findOneChat')
-  findOne(@MessageBody() id: number) {
-    return this.chatService.findOne(id);
+  @SubscribeMessage('leaveChat')
+  async handleLeaveChat(
+    @ConnectedSocket() client: AppSocket,
+    @MessageBody() leaveChatDto: LeaveChatDto,
+  ) {
+    await client.leave(`chat:${leaveChatDto.chatId}`);
+    return { event: 'leftChat', data: leaveChatDto.chatId };
   }
 
-  @SubscribeMessage('updateChat')
-  update(@MessageBody() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(updateChatDto.id, updateChatDto);
+  @SubscribeMessage('getMessages')
+  async handleGetMessage(
+    @ConnectedSocket() client: AppSocket,
+    @MessageBody() getMessagesDto: GetMessagesDto,
+  ) {
+    const { sub } = client.data.user;
+
+    return this.chatService.getMessages(
+      getMessagesDto.chatId,
+      sub,
+      getMessagesDto.cursor,
+      getMessagesDto.limit,
+    );
   }
 
-  @SubscribeMessage('removeChat')
-  remove(@MessageBody() id: number) {
-    return this.chatService.remove(id);
+  @SubscribeMessage('sendMessage')
+  async handleSendMessage(
+    @ConnectedSocket() client: AppSocket,
+    @MessageBody() sendMessageDto: SendMessageDto,
+  ) {
+    const { sub } = client.data.user;
+    console.log('sendMessageDto:', sendMessageDto, typeof sendMessageDto);
+    console.log('chatId:', sendMessageDto.chatId, typeof sendMessageDto.chatId);
+
+    const newMessage = await this.chatService.createMessage(
+      sendMessageDto.chatId,
+      sub,
+      sendMessageDto.text,
+    );
+
+    this.server
+      .to(`chat:${sendMessageDto.chatId}`)
+      .emit('newMessage', newMessage);
+
+    const memberIds = await this.chatService.getChatMemberIds(
+      sendMessageDto.chatId,
+    );
+
+    for (const memberId of memberIds) {
+      this.server.to(`user:${memberId}`).emit('chatListUpdate', {
+        chatId: sendMessageDto.chatId,
+        lastMessage: newMessage,
+      });
+    }
+  }
+
+  @SubscribeMessage('typingMessage')
+  handleTyping(
+    @ConnectedSocket() client: AppSocket,
+    @MessageBody() typingMessageDto: TypingMessageDto,
+  ) {
+    const { sub, username } = client.data.user;
+    client.to(`chat:${typingMessageDto.chatId}`).emit('userTypingMessage', {
+      chatId: typingMessageDto.chatId,
+      userId: sub,
+      username,
+    });
   }
 }

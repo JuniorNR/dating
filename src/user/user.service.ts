@@ -6,6 +6,7 @@ import { AddUserRoleDto } from './dto/add-user-role.dto';
 import { AddUserBanDto } from './dto/add-user-ban.dto';
 import { RemoveUserBanDto } from './dto/remove-user-ban.dto';
 import type { AuthenticatedRequest } from 'src/common/types/jwt.types';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -20,9 +21,12 @@ export class UserService {
       throw new HttpException('Role user is not defined', HttpStatus.NOT_FOUND);
     }
 
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
     const newUser = this.prisma.user.create({
       data: {
         ...createUserDto,
+        password: hashedPassword,
         roles: {
           connect: {
             id: role.id,

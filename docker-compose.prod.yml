@@ -12,6 +12,7 @@ services:
     ports:
       - 3001:3001
       - 3002:3002
+      - 5555:5555
     depends_on:
       postgres:
         condition: service_healthy

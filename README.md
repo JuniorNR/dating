@@ -89,6 +89,17 @@ $ docker exec -i POSTGRES_CONTAINER_NAME pg_restore -U postgres -d dating --clea
 $ docker exec -i POSTGRES_CONTAINER_NAME rm -f /tmp/backup.dump
 ```
 
+## Show database in docker container
+```bash
+# run in exec
+$ pnpm prisma studio --browser none --port 5555
+
+# check result on 5555 porn in browser
+
+# Kill prisma studio container
+$ pnpm pkill -f "prisma studio"
+```
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
