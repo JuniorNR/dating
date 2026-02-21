@@ -17,6 +17,7 @@ import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './common/guards/jwtAuth.guard';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { JwtAuthGuard } from './common/guards/jwtAuth.guard';
     UserModule,
     RoleModule,
     AnnouncementModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [

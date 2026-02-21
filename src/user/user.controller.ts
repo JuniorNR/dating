@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,6 +20,7 @@ import { AddUserRoleDto } from './dto/add-user-role.dto';
 import { RemoveUserRoleDto } from './dto/remove-user-role.dto';
 import { AddUserBanDto } from './dto/add-user-ban.dto';
 import { RemoveUserBanDto } from './dto/remove-user-ban.dto';
+import type { AuthenticatedRequest } from 'src/common/types/jwt.types';
 
 @ApiTags('User')
 @Controller('user')
@@ -37,6 +39,20 @@ export class UserController {
   })
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
+  }
+
+  @Get('/auth')
+  @ApiOperation({
+    summary: 'Get auth user',
+    description: 'Get auth user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Authorized user',
+    type: [UserEntity],
+  })
+  getAuth(@Request() request: AuthenticatedRequest) {
+    return this.userService.findAuth(request);
   }
 
   @Get()

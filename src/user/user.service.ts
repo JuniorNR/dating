@@ -5,6 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AddUserRoleDto } from './dto/add-user-role.dto';
 import { AddUserBanDto } from './dto/add-user-ban.dto';
 import { RemoveUserBanDto } from './dto/remove-user-ban.dto';
+import type { AuthenticatedRequest } from 'src/common/types/jwt.types';
 
 @Injectable()
 export class UserService {
@@ -34,6 +35,14 @@ export class UserService {
       },
     });
     return newUser;
+  }
+
+  findAuth(request: AuthenticatedRequest) {
+    return this.prisma.user.findFirst({
+      where: { id: request.user.sub },
+      include: { roles: true, announcements: true },
+      omit: { password: true },
+    });
   }
 
   findAll() {

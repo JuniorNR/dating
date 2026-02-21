@@ -9,7 +9,7 @@ import { Namespace, Server } from 'socket.io';
 import { AppSocket } from '../common/types/ws.types';
 
 @WebSocketGateway(Number(process.env['WEBSOCKET_PORT']) || 3002, {
-  namespace: process.env['WEBSOCKET_NAMESPACE'] || 'ws',
+  namespace: 'ws',
 })
 export class WebsocketGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -25,13 +25,15 @@ export class WebsocketGateway
 
   handleConnection(client: AppSocket) {
     const { username, sub } = client.data.user;
-    console.log(`WS connection: ${client.id} (user: ${username}, id: ${sub})`);
+    console.log(
+      `[WS][ws][connection]: ${client.id} (user: ${username}, id: ${sub})`,
+    );
   }
 
   handleDisconnect(client: AppSocket) {
     const { username, sub } = client.data.user;
     console.log(
-      `WS disconnection: ${client.id} (user: ${username}, id: ${sub})`,
+      `[WS][ws][disconnect]: ${client.id} (user: ${username}, id: ${sub})`,
     );
   }
 }
