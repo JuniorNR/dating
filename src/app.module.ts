@@ -29,7 +29,7 @@ import { ChatModule } from './chat/chat.module';
       useFactory: (configService: ConfigService) => ({
         fallbackLanguage: configService.getOrThrow('FALLBACK_LANGUAGE'),
         loaderOptions: {
-          path: path.join(__dirname, '../i18n'),
+          path: path.join(process.cwd(), 'src', 'i18n'),
           watch: true,
         },
       }),

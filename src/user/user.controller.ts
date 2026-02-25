@@ -49,7 +49,7 @@ export class UserController {
   @ApiResponse({
     status: 200,
     description: 'Authorized user',
-    type: [UserEntity],
+    type: UserEntity,
   })
   getAuth(@Request() request: AuthenticatedRequest) {
     return this.userService.findAuth(request);
@@ -65,7 +65,7 @@ export class UserController {
     description: 'List of users',
     type: [UserEntity],
   })
-  @Roles('user')
+  @Roles('admin')
   @UseGuards(RolesGuard)
   findAll() {
     return this.userService.findAll();

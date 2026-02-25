@@ -9,14 +9,16 @@ import { LoginUserDto } from 'src/user/dto/login-user.dto';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { Prisma } from '@prisma/client';
+import { I18nService } from 'nestjs-i18n';
 
 type UserWithRoles = Prisma.UserGetPayload<{ include: { roles: true } }>;
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
-    private jwtService: JwtService,
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly i18n: I18nService,
   ) {}
 
   async login(loginUserDto: LoginUserDto): Promise<{ accessToken: string }> {
@@ -31,6 +33,8 @@ export class AuthService {
     const newUser = await this.validateRegistrationUser(createUserDto);
     return await this.generateAuthToken(newUser);
   }
+
+  async logout(): Promise<undefined> {}
 
   private async generateAuthToken(
     user: UserWithRoles,
@@ -49,9 +53,10 @@ export class AuthService {
     const user = await this.userService.findOneByUsername(
       toValidateUser.username,
     );
-
     if (!user) {
-      throw new NotFoundException('Username or password is incorrect');
+      throw new NotFoundException(
+        this.i18n.t('error.usernameOrPasswordIsIncorrect'),
+      );
     }
 
     const passwordEquals = await bcrypt.compare(
@@ -60,7 +65,9 @@ export class AuthService {
     );
 
     if (!passwordEquals) {
-      throw new NotFoundException('Username or password is incorrect');
+      throw new NotFoundException(
+        this.i18n.t('error.usernameOrPasswordIsIncorrect'),
+      );
     }
 
     return user;
@@ -80,12 +87,7 @@ export class AuthService {
       throw new BadRequestException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(toValidateUser.password, 10);
-
-    const newUser = await this.userService.create({
-      ...toValidateUser,
-      password: hashedPassword,
-    });
+    const newUser = await this.userService.create(toValidateUser);
 
     return newUser;
   }

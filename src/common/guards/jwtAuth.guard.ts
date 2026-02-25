@@ -9,12 +9,14 @@ import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs/internal/Observable';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { JwtPayload, AuthenticatedRequest } from '../types/jwt.types';
+import { I18nService } from 'nestjs-i18n';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly reflector: Reflector,
+    private readonly i18n: I18nService,
   ) {}
 
   canActivate(
@@ -32,12 +34,22 @@ export class JwtAuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
 
     try {
+      const cookieName = process.env['JWT_ACCESS_COOKIE_NAME'];
+      const tokenFromCookieRaw: unknown = request.cookies[String(cookieName)];
+      const tokenFromCookie =
+        typeof tokenFromCookieRaw === 'string' ? tokenFromCookieRaw : undefined;
+
       const authHeader = request.headers.authorization;
       const bearer = authHeader?.split(' ')[0];
-      const token = authHeader?.split(' ')[1];
+      const tokenFromHeader = authHeader?.split(' ')[1];
 
-      if (bearer !== 'Bearer' || !token) {
-        throw new UnauthorizedException({ message: 'User is not authorized' });
+      const token =
+        tokenFromCookie ?? (bearer === 'Bearer' ? tokenFromHeader : undefined);
+
+      if (!token) {
+        throw new UnauthorizedException({
+          message: this.i18n.t('error.userNotAuthorized'),
+        });
       }
 
       const user = this.jwtService.verify<JwtPayload>(token);
@@ -46,7 +58,9 @@ export class JwtAuthGuard implements CanActivate {
       return true;
     } catch (e) {
       console.log(e);
-      throw new UnauthorizedException({ message: 'User is not authorized' });
+      throw new UnauthorizedException({
+        message: this.i18n.t('error.userNotAuthorized'),
+      });
     }
   }
 }

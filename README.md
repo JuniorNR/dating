@@ -18,8 +18,11 @@
 # install dependencies
 $ pnpm install
 
+# generate prisma client
+$ pnpm run database:generate
+
 # initialize database
-$ pnpm prisma db push
+$ pnpm run database:push
 
 # initialize started data
 $ pnpm prisma db seed
@@ -89,15 +92,19 @@ $ docker exec -i POSTGRES_CONTAINER_NAME pg_restore -U postgres -d dating --clea
 $ docker exec -i POSTGRES_CONTAINER_NAME rm -f /tmp/backup.dump
 ```
 
-## Show database in docker container
+## Database commands
 ```bash
-# run in exec
-$ pnpm prisma studio --browser none --port 5555
+# generate prisma client after schema changes
+$ pnpm run database:generate
 
-# check result on 5555 porn in browser
+# push schema changes to database
+$ pnpm run database:push
 
-# Kill prisma studio container
-$ pnpm pkill -f "prisma studio"
+# seed database with initial data
+$ pnpm database:seed
+
+# open prisma studio (http://localhost:5555)
+$ pnpm run database:show
 ```
 
 ## Deployment
